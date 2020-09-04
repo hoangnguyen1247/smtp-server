@@ -1,5 +1,5 @@
 {
-    "name": "quickstart-lib-ts",
+    "name": "smtp-server",
     "version": "0.0.1",
     "description": "Quickstart lib ts",
     "main": "index.js",
@@ -22,12 +22,13 @@
         "chai-as-promised": "^7.1.1",
         "cross-env": "^7.0.2",
         "gts": "^2.0.2",
+        "husky": "^4.2.5",
         "ipv6-normalize": "^1.0.1",
         "mocha": "^8.1.2",
         "pem": "^1.14.4",
         "prettier": "^2.1.1",
         "rimraf": "^3.0.2",
-        "smtp-connection": "git+https://github.com/hoangnguyen1247/smtp-connection",
+        "smtp-connection": "git+https://github.com/hoangnguyen1247/smtp-connection.git",
         "ts-mocha": "^7.0.0",
         "typescript": "^3.9.5"
     },
@@ -35,19 +36,21 @@
         "clean:build": "rimraf lib",
         "type-check": "cross-env NODE_PATH=. tsc --noEmit",
         "type-check:watch": "npm run type-check -- --watch",
-        "build": "npm run clean:build && npm run type-chec && npm run build:js",
+        "build": "npm run clean:build && npm run type-check && npm run build:js",
         "build:types": "tsc --emitDeclarationOnly",
         "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --ignore '**/*.test.ts' --source-maps false",
-        "build:js2": "babel src --out-dir lib --extensions \".ts,.tsx\" --ignore '**/*.test.ts' --source-maps false --presets minify",
+        "build:js:minify": "babel src --out-dir lib --extensions \".ts,.tsx\" --ignore '**/*.test.ts' --source-maps false --presets minify",
         "build:js:sourcemap": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
         "eslint": "node_modules/.bin/eslint src/** --fix",
         "test:mocha": "cross-env NODE_PATH=. ts-mocha test/test.ts --timeout=60000 --exit",
         "test": "npm run type-check && npm run test:mocha"
     },
-    "prettier": {
-        "singleQuote": true
-    },
     "engines": {
         "node": ">=10"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run type-check"
+        }
     }
 }

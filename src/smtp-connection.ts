@@ -5,7 +5,7 @@ import ipv6normalize from 'ipv6-normalize';
 import crypto from 'crypto';
 import os from 'os';
 import punycode from 'punycode';
-const EventEmitter = require('events');
+import events from 'events';
 import base32 from 'base32.js';
 
 import sasl from './sasl';
@@ -20,7 +20,52 @@ const SOCKET_TIMEOUT = 60 * 1000;
  * @param {Object} server Server instance
  * @param {Object} socket Socket instance
  */
-export class SMTPConnection extends EventEmitter {
+export class SMTPConnection extends events.EventEmitter {
+
+    id: string;
+    ignore: boolean;
+
+    _server: any;
+    _socket: any;
+    session: any;
+
+    _transactionCounter: number;
+
+    _ready: boolean;
+    _upgrading: boolean;
+
+    _nextHandler: () => void;
+
+    _parser: any;
+    _dataStream: any;
+
+    secure: boolean;
+    needsUpgrade: boolean;
+
+    tlsOptions: any;
+
+    localAddress: string;
+    localPort: number;
+    remoteAddress: string;
+    remotePort: number;
+
+    _unauthenticatedCommands: number;
+    _maxAllowedUnauthenticatedCommands: number | boolean;
+    _unrecognizedCommands: number;
+
+    name: string;
+    clientHostname: string | boolean;
+    openingCommand: string | boolean;
+    hostNameAppearsAs: boolean;
+
+    _xClient: Map<any, any>;
+    _xForward: Map<any, any>;
+
+    _canEmitConnection: boolean;
+
+    _closing: boolean;
+    _closed: boolean;
+
     constructor(server, socket, options?) {
         super();
 
@@ -48,7 +93,7 @@ export class SMTPConnection extends EventEmitter {
         this._upgrading = false;
 
         // Set handler for incoming command and handler bypass detection by command name
-        this._nextHandler = false;
+        this._nextHandler = undefined;
 
         // Parser instance for the incoming stream
         this._parser = new SMTPStream();
@@ -412,7 +457,7 @@ export class SMTPConnection extends EventEmitter {
         if (this._nextHandler) {
             // If we already have a handler method queued up then use this
             handler = this._nextHandler;
-            this._nextHandler = false;
+            this._nextHandler = undefined;
         } else {
             // detect handler from the command name
             switch (commandName) {
@@ -498,7 +543,7 @@ export class SMTPConnection extends EventEmitter {
         parts = parts.join(':').trim().split(/\s+/);
 
         let address = parts.shift();
-        let args: any = undefined;
+        let args: boolean | any = false;
         let invalid = false;
 
         if (name !== command) {

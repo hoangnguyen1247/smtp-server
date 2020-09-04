@@ -1,5 +1,3 @@
-/* eslint no-unused-expressions:0, prefer-arrow-callback: 0 */
-
 import chai from 'chai';
 import net from 'net';
 import pem from 'pem';

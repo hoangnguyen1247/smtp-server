@@ -3,7 +3,7 @@ import tls from 'tls';
 import punycode from 'punycode';
 import crypto from 'crypto';
 import base32 from 'base32.js';
-const EventEmitter = require('events');
+import events from 'events';
 
 import * as shared from './shared';
 import { SMTPConnection } from './smtp-connection';
@@ -17,7 +17,17 @@ const CLOSE_TIMEOUT = 30 * 1000; // how much to wait until pending connections a
  * @constructor
  * @param {Object} options Connection and SMTP optionsž
  */
-export class SMTPServer extends EventEmitter {
+export class SMTPServer extends events.EventEmitter {
+    options: any;
+    logger: any;
+
+    _closeTimeout: NodeJS.Timeout;
+
+    connections: Set<any>;
+    secureContext: Map<any, any>;
+
+    server: net.Server;
+
     constructor(options) {
         super();
 
@@ -49,7 +59,7 @@ export class SMTPServer extends EventEmitter {
         /**
          * Timeout after close has been called until pending connections are forcibly closed
          */
-        this._closeTimeout = false;
+        this._closeTimeout = undefined;
 
         /**
          * A set of all currently open connections
@@ -279,7 +289,7 @@ export class SMTPServer extends EventEmitter {
      * @event
      */
     _onListening() {
-        let address = this.server.address();
+        let address: any = this.server.address();
 
         // address will be null if listener is using Unix socket
         if (address === null) {
