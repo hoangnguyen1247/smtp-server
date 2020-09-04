@@ -6,7 +6,7 @@ import base32 from 'base32.js';
 import events from 'events';
 
 import * as shared from './shared';
-import { SMTPConnection } from './smtp-connection';
+import { SMTPConnection } from './smtp-connection'; // this is handler of smtp-server
 import tlsOptions from './tls-options';
 
 const CLOSE_TIMEOUT = 30 * 1000; // how much to wait until pending connections are terminated
